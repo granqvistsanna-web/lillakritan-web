@@ -6,5 +6,14 @@
 
   "startsida": ["PLOony3KyvjqQ", "PLHSqO1eqAdTM", "PLTWkjKnDYx8M", "PLKwpDHxIkjg0", "PLFd5GnAHiteU", "PLDmKkPfzl1uo"],
   "filter": ["PLOony3KyvjqQ", "PLHSqO1eqAdTM", "PLTWkjKnDYx8M", "PLFd5GnAHiteU"],
-  "dolda": ["PLDeIXhSmYWl8"]
+  "dolda": ["PLDeIXhSmYWl8"],
+
+  "titlar": {
+    "PLOony3KyvjqQ": "Vardagssagor för barn – bada, äta och sova",
+    "PLHSqO1eqAdTM": "Barnsånger och barnvisor för de minsta",
+    "PLTWkjKnDYx8M": "Godnattsagor för barn att somna till",
+    "PLKwpDHxIkjg0": "Bilar, bussar och båtar för barn",
+    "PLFd5GnAHiteU": "Tittut för bebisar och 1-åringar",
+    "PLDmKkPfzl1uo": "Korta klipp för barn 1–4 år"
+  }
 }

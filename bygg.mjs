@@ -53,7 +53,11 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const utanEmoji = s => s.replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\uFE0F\u200D]/gu, '').replace(/\s+/g, ' ').trim();
 const slug = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const stycken = t => t.split(/\n\s*\n/).map(p => p.split('\n').filter(r => !/https?:\/\/|^\s*#|^\s*\d{1,2}:\d\d/.test(r)).join(' ').replace(/(^|\s)#\S+/g, '').trim()).filter(Boolean);
-const kortare = (t, n = 155) => t.length <= n ? t : t.slice(0, t.lastIndexOf(' ', n - 1)) + ' …';
+const kortare = (t, n = 155) => {
+  if (t.length <= n) return t;
+  const bit = t.slice(0, n), slut = Math.max(bit.lastIndexOf('. '), bit.lastIndexOf('! '), bit.lastIndexOf('? '), /[.!?]$/.test(bit) ? n - 1 : -1);
+  return slut >= 50 ? bit.slice(0, slut + 1) : bit.slice(0, bit.lastIndexOf(' ')) + ' …';   // hela meningar, annars ord
+};
 const forsta = t => (t.match(/^.*?[.!?](\s|$)/) || [t])[0].trim();
 const minuter = s => `${Math.max(1, Math.round(s / 60))} min`;
 const datum = iso => new Date(iso).toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -196,7 +200,7 @@ const FORALDRAR = `<section class="foraldrar in">
   <p class="knappar"><a class="knapp ghost" href="${lank('om/')}">Om Lilla Kritan</a><a class="knapp ghost" href="${S.youtube}">YouTube-kanalen</a></p></section>`;
 
 sidor.push(sida({
-  sokvag: '', titel: 'Lilla Kritan – barnsånger, sagor och lekar för de minsta',
+  sokvag: '', titel: 'Barnsånger, sagor och lekar för barn 1–4 år | Lilla Kritan', andrad: videor.map(v => v.publicerad).sort().at(-1),
   beskrivning: 'Barnsånger, sagor och lekar för barn 1–4 år: sjung med, lek tittut, gissa teckningen och somna till en godnattsaga. Egna sånger på svenska.',
   ogbild: senast.id,
   jsonld: { '@context': 'https://schema.org', '@graph': [
@@ -230,24 +234,24 @@ ${FORALDRAR}`,
 }));
 
 sidor.push(sida({
-  sokvag: 'videor/', titel: 'Alla videor – Lilla Kritan', beskrivning: `Alla ${langa.length} videor från Lilla Kritan: barnsånger, sagor och berättelser för barn 1–4 år, nyast först.`,
+  sokvag: 'videor/', andrad: langa[0]?.publicerad, titel: 'Alla videor – Lilla Kritan', beskrivning: `Alla ${langa.length} videor från Lilla Kritan: barnsånger, sagor och berättelser för barn 1–4 år, nyast först.`,
   innehall: `<section><h1>Alla videor</h1><p class="under">Nyast först. Välj ett tema för att se bara det.</p>
   <div class="chips" role="group" aria-label="Visa tema"><button aria-pressed="true" data-tema="">Alla</button>${filterteman.map(t => `<button aria-pressed="false" data-tema="${t.id}" style="${farger(t)}">${esc(t.namn)}</button>`).join('')}</div>
   ${rutnat(langa)}</section>`,
 }));
 
 sidor.push(sida({
-  sokvag: 'korta-klipp/', titel: 'Korta klipp – Lilla Kritan', beskrivning: 'Korta klipp för de minsta: gissa vad kritan ritar, lek tittut och dansa en stund.',
+  sokvag: 'korta-klipp/', andrad: korta[0]?.publicerad, titel: 'Korta klipp – Lilla Kritan', beskrivning: 'Korta klipp för de minsta: gissa vad kritan ritar, lek tittut och dansa en stund.',
   innehall: `<section><h1>Korta klipp</h1><p class="under">Gissa vad kritan ritar, lek tittut och dansa en stund.</p>${rutnat(korta, 'shorts')}</section>`,
 }));
 
 for (const t of teman) {
   const allaKorta = t.vids.every(v => v.short), andra = startteman.filter(x => x !== t).slice(0, 3);
   sidor.push(sida({
-    sokvag: t.sida, titel: `${t.titel} – Lilla Kritan`, beskrivning: t.text.join(' ') || `${t.titel}: ${t.vids.length} videor från Lilla Kritan för barn 1–4 år.`,
+    sokvag: t.sida, titel: `${S.titlar?.[t.id] || t.titel} | Lilla Kritan`, andrad: t.vids.map(v => v.publicerad).sort().at(-1), beskrivning: t.text.join(' ') || `${t.titel}: ${t.vids.length} videor från Lilla Kritan för barn 1–4 år.`,
     ogbild: t.vids[0].id,
     jsonld: { '@context': 'https://schema.org', '@graph': [{ '@type': 'CollectionPage', name: t.titel, url: S.url + t.sida,
-      mainEntity: { '@type': 'ItemList', itemListElement: t.vids.map((v, i) => ({ '@type': 'ListItem', position: i + 1, url: S.url + v.sida })) } }, smulor([t.titel, t.sida])] },
+      mainEntity: { '@type': 'ItemList', itemListElement: t.vids.map((v, i) => ({ '@type': 'ListItem', position: i + 1, name: v.namn, url: S.url + v.sida })) } }, smulor([t.titel, t.sida])] },
     innehall: `<section class="temahuvud" style="${farger(t)}"><h1>${esc(t.titel)}</h1>${t.text.map(p => `<p class="ingress">${esc(p)}</p>`).join('')}</section>
   <section>${rutnat(t.vids, allaKorta ? 'shorts' : 'rutnat')}</section>
   ${andra.length ? `<section><h2>Fler teman</h2><div class="teman">${andra.map(temakort).join('')}</div></section>` : ''}`,
