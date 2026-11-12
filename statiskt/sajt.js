@@ -1,12 +1,16 @@
 // Meny, filter, mjukt in vid scroll och spelaren. Inga bibliotek. (Klassen .js sätts i <head>.)
 
-const knapp = document.querySelector('.menyknapp'), meny = document.getElementById('meny');
+const knapp = document.querySelector('.menyknapp'), meny = document.getElementById('meny'), etikett = knapp.querySelector('b');
+const bakom = document.querySelectorAll('main, footer, .hoppa');
 const visaMeny = oppen => {
-  knapp.setAttribute('aria-expanded', oppen); meny.hidden = !oppen; document.body.classList.toggle('meny-oppen', oppen);
+  knapp.setAttribute('aria-expanded', oppen); etikett.textContent = oppen ? 'Stäng' : 'Meny';
+  meny.hidden = !oppen; document.body.classList.toggle('meny-oppen', oppen);
+  bakom.forEach(el => { el.inert = oppen; });   // Tab stannar i menyn
   if (oppen) meny.querySelector('a').focus();
 };
 knapp.addEventListener('click', () => visaMeny(knapp.getAttribute('aria-expanded') !== 'true'));
 addEventListener('keydown', e => { if (e.key === 'Escape' && !meny.hidden) { visaMeny(false); knapp.focus(); } });
+meny.addEventListener('click', e => { if (e.target.closest('a')) visaMeny(false); });
 
 // filterknappar på "Alla videor"
 document.querySelectorAll('.chips').forEach(chips => chips.addEventListener('click', e => {
