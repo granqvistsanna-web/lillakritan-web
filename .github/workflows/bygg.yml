@@ -1,0 +1,39 @@
+name: Bygg sajten
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 4 * * *'   # varje natt, ca 05:17 svensk tid
+  workflow_dispatch:        # knappen "Run workflow" efter en ny video
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  bygg:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publicera.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Hämta från YouTube och bygg
+        run: node bygg.mjs
+        env:
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}   # saknas den byggs sajten från data/youtube.json
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: publicera
+        uses: actions/deploy-pages@v4
