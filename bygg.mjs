@@ -334,9 +334,9 @@ if (!host.endsWith('github.io')) await fs.writeFile(`${UT}/CNAME`, host + '\n');
 await fs.mkdir('.bilder', { recursive: true });
 await fs.mkdir(`${UT}/bilder`, { recursive: true });
 await Promise.all(videor.map(async v => {
-  const fil = `.bilder/${v.id}.jpg`;
+  const fil = `.bilder/${v.id}${v.short ? '-staende' : ''}.jpg`;   // eget namn: gamla liggande short-bilder i cachen används inte
   try { await fs.access(fil); } catch {
-    for (const namn of v.short ? ['hqdefault'] : ['maxresdefault', 'hqdefault']) {
+    for (const namn of v.short ? ['oardefault', 'hqdefault'] : ['maxresdefault', 'hqdefault']) {   // oardefault = stående 1080×1920
       const r = await fetch(`https://i.ytimg.com/vi/${v.id}/${namn}.jpg`);
       if (r.ok) { await fs.writeFile(fil, Buffer.from(await r.arrayBuffer())); break; }
     }
