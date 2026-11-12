@@ -31,15 +31,13 @@
   color:#f3ede4;font:500 17px Fredoka,sans-serif;
   background:radial-gradient(circle at 50% calc(50% - 22px),#f6c53b 0 34px,transparent 35px)}
 .fx .spelruta .ruta::before,.fx div.spelare::before{animation:koka .75s step-end infinite}
-@keyframes visa{to{opacity:1}}
-.fx .spelruta iframe,.fx div.spelare iframe{position:relative;opacity:0;transition:opacity .5s ease;animation:visa .5s 4s forwards} /* visas ändå om load aldrig kommer */
-.fx iframe.klar{opacity:1}
-.fx :has(>iframe.klar)::before{content:none}
+/* iframen ligger överst och syns direkt: en dold eller genomskinlig spelare får YouTube att starta utan ljud.
+   Laddrutan syns igenom tills YouTube har ritat sin bild. */
+.fx .spelruta iframe,.fx div.spelare iframe{position:relative}
 @media (max-width:560px){
   .fx .spelruta .ruta::before,.fx div.spelare::before{padding-top:90px;background:radial-gradient(circle at 50% calc(50% - 20px),#f6c53b 0 26px,transparent 27px)}
 }
 
 @media (prefers-reduced-motion:reduce){
   .hjalte-video,.vid .thumb{transform:none!important}
-  .fx .spelruta iframe,.fx div.spelare iframe{opacity:1}
 }

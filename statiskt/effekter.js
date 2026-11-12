@@ -1,9 +1,6 @@
 // Fler OSMO-effekter. Stilarna finns i effekter.css. Inga bibliotek.
 document.documentElement.classList.add('fx');
 
-// Spelrutan: videon tonar in när YouTube har laddat (load bubblar inte och når inte window, så document i capture)
-document.addEventListener('load', e => { if (e.target.tagName === 'IFRAME') e.target.classList.add('klar'); }, true);
-
 // Miniatyren lutar mot muspekaren (OSMO 3D Perspective Hover), högst 5 grader. Bara mus, och inte vid minskad rörelse.
 if (matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)').matches) {
   const MAX = 5;
