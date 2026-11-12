@@ -185,8 +185,7 @@ body.meny-oppen .nav{visibility:hidden}
 
 /* spelrutan: korten spelar på samma sida */
 .spelruta{width:min(960px,100% - 32px);max-width:none;max-height:calc(100% - 32px);padding:14px 16px 18px;border:0;border-radius:24px;background:var(--bg) var(--grain);color:var(--ink);box-shadow:0 30px 80px -20px rgba(0,0,0,.6)}
-.spelruta[open]{animation:ark .3s cubic-bezier(.2,.7,.2,1)}
-@keyframes ark{from{transform:translateY(16px)}}  /* ingen opacity: en genomskinlig spelare startar utan ljud */
+.spelruta[open]{animation:upp .3s cubic-bezier(.2,.7,.2,1)}
 .spelruta::backdrop{background:rgba(31,28,25,.75)}
 body:has(.spelruta[open]){overflow:hidden}
 .spelruta-topp{display:flex;align-items:center;gap:12px;margin:0 0 12px 4px}
