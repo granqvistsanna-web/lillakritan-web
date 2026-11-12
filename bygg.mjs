@@ -129,6 +129,9 @@ const rutnat = (vs, klass = 'rutnat') => `<div class="${klass}">${vs.map(klass =
 
 const PREN = `<a class="knapp pren" href="${S.youtube}?sub_confirmation=1">Prenumerera</a>`;
 
+// TV-läge: alla långa videor i blandad ordning, i helskärm (sajt.js blandar)
+const TV = `<button class="knapp ghost tv-knapp" type="button" data-tv="${langa.map(v => v.id).join(',')}">Spela allt i TV-läge</button>`;
+
 function sida({ sokvag, titel, beskrivning, innehall, ogbild, jsonld, andrad }) {
   const url = S.url + sokvag;
   return [sokvag, `<!doctype html>
@@ -167,7 +170,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
     <div>
       ${teman.length > startteman.length ? `<p class="meny-rubrik">Fler teman</p><ul class="meny-fler">${teman.filter(t => !startteman.includes(t)).map((t, i) => `<li style="--i:${i + startteman.length}"><a href="${lank(t.sida)}">${esc(t.titel)}</a></li>`).join('')}</ul>` : ''}
       <p class="meny-rubrik">Mer</p>
-      <ul class="meny-ovrigt"><li><a href="${lank('videor/')}">Alla videor</a></li><li><a href="${lank('om/')}">För föräldrar</a></li><li><a href="${S.engelska}">På engelska</a></li></ul>
+      <ul class="meny-ovrigt"><li>${TV.replace('knapp ghost tv-knapp', 'tv-knapp')}</li><li><a href="${lank('videor/')}">Alla videor</a></li><li><a href="${lank('om/')}">För föräldrar</a></li><li><a href="${S.engelska}">På engelska</a></li></ul>
     </div>
   </nav>
 </div>
@@ -179,6 +182,7 @@ ${innehall}
   <ul><li><a href="${S.youtube}?sub_confirmation=1">Prenumerera på YouTube</a></li><li><a href="${S.engelska}">På engelska: Tiny Crayon TV</a></li><li><a href="${lank('om/')}">Om Lilla Kritan</a></li></ul>
   <p class="liten">© ${ar} Lilla Kritan. Sidan har ingen reklam och inga spårningscookies.</p>
 </footer>
+<dialog class="tv" id="tv" aria-label="TV-läge"><div class="ruta"></div><form method="dialog"><button class="stang" aria-label="Stäng TV-läget"><span class="ikon" aria-hidden="true"><i></i><i></i><i></i></span></button></form></dialog>
 <dialog class="spelruta" id="spelruta" aria-labelledby="spelruta-t">
   <div class="spelruta-topp"><h2 id="spelruta-t"></h2><form method="dialog"><button class="stang" aria-label="Stäng videon"><span class="ikon" aria-hidden="true"><i></i><i></i><i></i></span></button></form></div>
   <div class="ruta"></div>
@@ -194,6 +198,10 @@ ${innehall}
 // ---------- sidor ----------
 const sidor = [];
 const senast = langa[0];
+// Kritan ritar en sol, ett moln och tre gnistor runt toppens video (ritas fram en gång, se stil.css)
+const KLOTTER = `<svg class="klotter sol" viewBox="0 0 120 120" aria-hidden="true"><path pathLength="1" d="M60 36c13 0 24 11 24 24s-11 24-24 24-24-11-24-24 10-23 23-24"/><path pathLength="1" d="M60 8v14M60 98v14M8 60h14M98 60h14M23 23l10 10M87 87l10 10M97 23 87 33M33 87l-10 10"/></svg>
+<svg class="klotter moln" viewBox="0 0 170 90" aria-hidden="true"><path pathLength="1" d="M30 74c-16 0-22-20-8-28-2-16 18-26 30-16 6-18 34-20 42-2 10-10 30-4 30 12 18-2 26 22 10 32-4 2-8 2-12 2H30z"/></svg>
+<svg class="klotter gnistor" viewBox="0 0 90 90" aria-hidden="true"><path pathLength="1" d="M20 8v24M8 20h24M62 40v16M54 48h16M36 64v18M27 73h18"/></svg>`;
 const FORALDRAR = `<section class="foraldrar in">
   <h2>För föräldrar</h2>
   <p>Sidan har ingen reklam och inga spårningscookies. Videorna spelas från YouTube först när ni trycker på dem.</p>
@@ -211,9 +219,9 @@ sidor.push(sida({
   <div>
     <h1>Barnsånger och sagor för <span class="understruken">de minsta${streck()}</span></h1>
     <p class="ingress">Sjung med, lek tittut, gissa vad kritan ritar och somna till en godnattsaga. För barn ungefär 1–4 år.</p>
-    <p class="knappar"><a class="knapp spela-knapp" href="${lank(senast.sida)}" ${spelData(senast)}>Spela nya avsnittet</a><a class="knapp ghost" href="${lank('videor/')}">Alla videor</a></p>
+    <p class="knappar"><a class="knapp spela-knapp" href="${lank(senast.sida)}" ${spelData(senast)}>Spela nya avsnittet</a>${TV}</p>
   </div>
-  <div class="hjalte-video">${kort(senast, 1).replace('loading="lazy"', 'fetchpriority="high"')}</div>
+  <div class="hjalte-video">${KLOTTER}${kort(senast, 1).replace('loading="lazy"', 'fetchpriority="high"')}</div>
 </section>
 <section>
   <h2>Vad behöver ni just nu?</h2>
@@ -225,7 +233,7 @@ sidor.push(sida({
   <p class="under">Nyast först. <a href="${lank('videor/')}">Se alla videor</a></p>
   ${rutnat(langa.slice(0, 6))}
 </section>
-${korta.length ? `<section>
+${korta.length ? `<section class="band">
   <h2>Korta klipp</h2>
   <p class="under">Gissa vad kritan ritar, lek tittut och dansa en stund. <a href="${lank('korta-klipp/')}">Se alla korta klipp</a></p>
   ${rutnat(korta.slice(0, 6), 'shorts')}
@@ -236,6 +244,7 @@ ${FORALDRAR}`,
 sidor.push(sida({
   sokvag: 'videor/', andrad: langa[0]?.publicerad, titel: 'Alla videor – Lilla Kritan', beskrivning: `Alla ${langa.length} videor från Lilla Kritan: barnsånger, sagor och berättelser för barn 1–4 år, nyast först.`,
   innehall: `<section><h1>Alla videor</h1><p class="under">Nyast först. Välj ett tema för att se bara det.</p>
+  <p class="knappar">${TV}</p>
   <div class="chips" role="group" aria-label="Visa tema"><button aria-pressed="true" data-tema="">Alla</button>${filterteman.map(t => `<button aria-pressed="false" data-tema="${t.id}" style="${farger(t)}">${esc(t.namn)}</button>`).join('')}</div>
   ${rutnat(langa)}</section>`,
 }));

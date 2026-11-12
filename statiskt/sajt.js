@@ -10,7 +10,7 @@ const visaMeny = oppen => {
 };
 knapp.addEventListener('click', () => visaMeny(knapp.getAttribute('aria-expanded') !== 'true'));
 addEventListener('keydown', e => { if (e.key === 'Escape' && !meny.hidden) { visaMeny(false); knapp.focus(); } });
-meny.addEventListener('click', e => { if (e.target.closest('a')) visaMeny(false); });
+meny.addEventListener('click', e => { if (e.target.closest('a, [data-tv]')) visaMeny(false); });
 
 // filterknappar på "Alla videor"
 document.querySelectorAll('.chips').forEach(chips => chips.addEventListener('click', e => {
@@ -60,3 +60,20 @@ document.addEventListener('click', e => {
 nasta.addEventListener('click', () => spela(nr + 1));
 dlg.addEventListener('close', () => ruta.replaceChildren());          // stoppar ljudet
 dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });  // tryck utanför stänger
+
+// TV-läge: alla videor i blandad ordning som en YouTube-spellista, i helskärm
+const tv = document.getElementById('tv');
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-tv]'); if (!b) return;
+  const ids = b.dataset.tv.split(',');
+  for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+  const f = youtube(ids[0], 'Lilla Kritan i TV-läge');
+  f.src += `&playlist=${ids.slice(1).join(',')}&loop=1`;
+  tv.querySelector('.ruta').replaceChildren(f);
+  tv.showModal();
+  tv.requestFullscreen?.().catch(() => {});   // iPhone saknar helskärm för sidor: då fyller rutan skärmen ändå
+});
+tv.addEventListener('close', () => {
+  tv.querySelector('.ruta').replaceChildren();
+  if (document.fullscreenElement) document.exitFullscreen();
+});
