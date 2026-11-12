@@ -252,11 +252,25 @@ for (const t of teman) {
   }));
 }
 
+// "Vad ritar kritan?" heter lika på YouTube; emojin är det enda som skiljer dem, så den blir ett ord i titeln.
+const SVAR = { '🐿': 'ekorren', '🦔': 'igelkotten', '🐝': 'biet', '🦉': 'ugglan', '🐭': 'musen', '🐸': 'grodan', '🐖': 'grisen', '⚽': 'bollen', '☀': 'solen', '🚗': 'bilen', '🐄': 'kon', '⛵': 'båten' };
+// Högst 60 tecken: namn (+ svar) (+ undertitel) | Lilla Kritan. Faller tillbaka på kortare delar.
+const MARKE = ' | Lilla Kritan';
+const titelDel = (v, extra = '') => {
+  const svar = v.namn.startsWith('Vad ritar kritan') && Object.entries(SVAR).find(([e]) => v.titel.includes(e))?.[1];
+  const huvud = v.namn + (svar ? ' ' + svar : '') + extra;
+  for (const t of [v.under && `${huvud} – ${v.under}`, !svar && namnAntal[v.namn] > 1 && v.under && v.under + extra, huvud]) if (t && t.length + MARKE.length <= 60) return t + MARKE;
+  return huvud.length <= 60 ? huvud : kortare(huvud, 60);
+};
+// Fortfarande lika (långt klipp och kort klipp om samma sak)? Då får det korta " (kort)".
+const forst = Object.fromEntries(videor.map(v => [v.id, titelDel(v)]));
+const antalTitlar = Object.values(forst).reduce((m, t) => (m[t] = (m[t] || 0) + 1, m), {});
+const videotitel = v => antalTitlar[forst[v.id]] > 1 && v.short ? titelDel(v, ' (kort)') : forst[v.id];
 for (const v of videor) {
   const tema = v.teman[0], mer = (tema ? tema.vids : v.short ? korta : langa).filter(x => x !== v && x.short === v.short).slice(0, 3);
   const besk = v.text.join(' ') || `${v.namn} – ${v.under || 'en video från Lilla Kritan'} för barn 1–4 år.`;
   sidor.push(sida({
-    sokvag: v.sida, andrad: v.publicerad, titel: `${v.namn}${v.under ? ` – ${v.under}` : ''}${namnAntal[v.namn] > 1 && tema && !(v.under || '').includes(tema.namn) ? ` – ${tema.titel}` : ''} | Lilla Kritan`, beskrivning: besk, ogbild: v.id,
+    sokvag: v.sida, andrad: v.publicerad, titel: videotitel(v), beskrivning: besk, ogbild: v.id,
     jsonld: { '@context': 'https://schema.org', '@graph': [smulor(...(tema ? [[tema.titel, tema.sida]] : []), [v.namn, v.sida]), { '@type': 'VideoObject', name: v.namn, description: kortare(besk, 500),
       thumbnailUrl: [`${S.url}bilder/${v.id}.jpg`], uploadDate: v.publicerad, duration: `PT${Math.floor(v.sekunder / 60)}M${v.sekunder % 60}S`,
       embedUrl: `https://www.youtube-nocookie.com/embed/${v.id}`, contentUrl: `https://www.youtube.com/watch?v=${v.id}`, inLanguage: 'sv', isFamilyFriendly: true }] },
