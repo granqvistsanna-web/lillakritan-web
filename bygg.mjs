@@ -6,7 +6,8 @@ import fs from 'node:fs/promises';
 
 const S = JSON.parse(await fs.readFile('sajt.json', 'utf8'));
 const UT = 'docs', BAS = new URL(S.url).pathname, NU = Date.now();
-const data = process.env.YT_API_KEY ? await hamta(process.env.YT_API_KEY) : JSON.parse(await fs.readFile('data/youtube.json', 'utf8'));
+const NYCKEL = process.env.YT_API_KEY?.trim();   // klistrade nycklar får ofta med ett radbyte
+const data = NYCKEL ? await hamta(NYCKEL) : JSON.parse(await fs.readFile('data/youtube.json', 'utf8'));
 
 // ---------- YouTube ----------
 async function hamta(key) {
