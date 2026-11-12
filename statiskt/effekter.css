@@ -1,0 +1,45 @@
+/* Fler OSMO-effekter, i ren CSS (och lite JS i effekter.js). Rör inte stil.css. */
+
+/* 1. Kritstrecken ritas fram en gång när sidan öppnas (OSMO Draw Path on Scroll) */
+@keyframes rita-streck{from{stroke-dashoffset:1}}
+@keyframes rita-linje{from{transform:scaleX(0)}}
+.understruken .streck path{animation:rita-streck .9s .35s cubic-bezier(.45,.05,.25,1) both}
+.temahuvud h1::after{transform-origin:left;animation:rita-linje .8s .25s cubic-bezier(.45,.05,.25,1) both}
+
+/* 2. Knappen lutar och studsar lite (OSMO Tilting Bouncing Button), bara med mus */
+@media (hover:hover) and (pointer:fine){
+  .knapp{transition:transform .55s cubic-bezier(.34,1.56,.64,1),box-shadow .15s}
+  .knapp:hover,.knapp.ghost:hover{transform:translateY(-1px) rotate(-2deg)}
+  .knapp:active,.knapp.ghost:active{transform:translateY(3px);transition-duration:.12s}
+}
+
+/* 3. Miniatyren lutar mot muspekaren som ett klistermärke (OSMO 3D Perspective Hover).
+   effekter.js sätter --rx/--ry; utan JS eller med touch händer inget. */
+@media (hover:hover) and (pointer:fine){
+  .vid .thumb{transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+}
+
+/* 4. Toppens video glider lite långsammare än sidan (OSMO Global Parallax), bara där webbläsaren kan scroll-drivna animationer */
+@supports (animation-timeline:scroll()){
+  @keyframes parallax{to{transform:translateY(-36px)}}
+  .hjalte-video{animation:parallax linear both;animation-timeline:scroll();animation-range:0 90vh}
+}
+
+/* 5. Spelrutan visar en kokande kritboll medan YouTube laddar, sen tonar videon in (OSMO Loaders + Stop Motion) */
+.fx .spelruta .ruta,.fx div.spelare{position:relative}
+.fx .spelruta .ruta::before,.fx div.spelare::before{content:"Videon laddas";position:absolute;inset:0;display:grid;place-items:center;padding-top:110px;
+  color:#f3ede4;font:500 17px Fredoka,sans-serif;
+  background:radial-gradient(circle at 50% calc(50% - 22px),#f6c53b 0 34px,transparent 35px)}
+.fx .spelruta .ruta::before,.fx div.spelare::before{animation:koka .75s step-end infinite}
+@keyframes visa{to{opacity:1}}
+.fx .spelruta iframe,.fx div.spelare iframe{position:relative;opacity:0;transition:opacity .5s ease;animation:visa .5s 4s forwards} /* visas ändå om load aldrig kommer */
+.fx iframe.klar{opacity:1}
+.fx :has(>iframe.klar)::before{content:none}
+@media (max-width:560px){
+  .fx .spelruta .ruta::before,.fx div.spelare::before{padding-top:90px;background:radial-gradient(circle at 50% calc(50% - 20px),#f6c53b 0 26px,transparent 27px)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .hjalte-video,.vid .thumb{transform:none!important}
+  .fx .spelruta iframe,.fx div.spelare iframe{opacity:1}
+}

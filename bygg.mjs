@@ -140,6 +140,7 @@ function sida({ sokvag, titel, beskrivning, innehall, ogbild, jsonld, andrad }) 
 ${ogbild ? `<meta property="og:image" content="${S.url}bilder/${ogbild}.jpg"><meta property="og:image:alt" content="${esc(titel)}"><meta name="twitter:card" content="summary_large_image">` : ''}
 <link rel="preload" href="${BAS}typsnitt/fredoka-600-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${BAS}stil.css">
+<link rel="stylesheet" href="${BAS}effekter.css">
 <script>document.documentElement.classList.add('js')</script>
 <link rel="icon" href="${BAS}ikon.svg" type="image/svg+xml">
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>` : ''}
@@ -180,6 +181,7 @@ ${innehall}
   <p class="knappar"><button class="knapp nasta" type="button">Nästa video</button>${PREN.replace('knapp pren', 'knapp ghost pren')}<a class="knapp ghost om-video" href="">Om videon</a></p>
 </dialog>
 <script src="${BAS}sajt.js" defer></script>
+<script src="${BAS}effekter.js" defer></script>
 </body>
 </html>
 `, andrad];
