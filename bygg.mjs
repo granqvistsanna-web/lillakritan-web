@@ -113,14 +113,17 @@ const streck = () => { const y = k => (4 + ((streckNr * 7 + k * 3) % 5)).toFixed
   return `<svg class="streck" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 ${y(1)} Q30 ${y(2)} 55 ${y(3)} T98 ${y(4)}" filter="url(#vax)"/></svg>`; };
 const navlank = (href, txt, c) => `<a href="${href}" style="--c:${c}">${txt}${streck()}</a>`;
 
-const kort = (v, i = 0) => `<a class="vid lyft-${i % 3} in" href="${lank(v.sida)}" data-teman="${v.teman.map(t => t.id).join(' ')}">
+const spelData = v => `data-id="${v.id}" data-namn="${esc(v.namn)}"${v.short ? ' data-short' : ''}`;
+const kort = (v, i = 0) => `<a class="vid lyft-${i % 3} in" href="${lank(v.sida)}" ${spelData(v)} data-teman="${v.teman.map(t => t.id).join(' ')}">
   ${nytt(v) ? '<span class="ny">Nytt!</span>' : ''}<span class="thumb"><img src="${bild(v)}" alt="" loading="lazy" width="480" height="270"><span class="spela" aria-hidden="true"></span></span>
   <span class="kort-t">${esc(v.namn)}</span>${v.under ? `<span class="kort-k">${esc(v.under)}</span>` : ''}</a>`;
-const kortKort = (v, i = 0) => `<a class="vid kort-short lyft-${i % 3} in" href="${lank(v.sida)}"><span class="thumb"><img src="${bild(v)}" alt="${esc(v.namn)}" loading="lazy" width="270" height="420"></span></a>`;
+const kortKort = (v, i = 0) => `<a class="vid kort-short lyft-${i % 3} in" href="${lank(v.sida)}" ${spelData(v)}><span class="thumb"><img src="${bild(v)}" alt="${esc(v.namn)}" loading="lazy" width="270" height="420"></span></a>`;
 const temakort = t => `<a class="tema in" href="${lank(t.sida)}" style="${farger(t)}">
   <span class="pic"><img src="${bild(t.vids[0])}" alt="" loading="lazy" width="480" height="270"></span>
   <span class="tema-t">${esc(t.namn)}</span><span class="tema-k">${esc(kortare(forsta(t.text[0] || ''), 90))}</span><span class="antal">${t.vids.length} ${t.vids.length === 1 ? 'video' : 'videor'}</span></a>`;
 const rutnat = (vs, klass = 'rutnat') => `<div class="${klass}">${vs.map(klass === 'shorts' ? kortKort : kort).join('')}</div>`;
+
+const PREN = `<a class="knapp pren" href="${S.youtube}?sub_confirmation=1">Prenumerera</a>`;
 
 function sida({ sokvag, titel, beskrivning, innehall, ogbild, jsonld, andrad }) {
   const url = S.url + sokvag;
@@ -147,18 +150,19 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <header class="topp wrap">
   <a class="hem" href="${BAS}" aria-label="Lilla Kritan, startsidan">${logo}</a>
   <nav class="nav" aria-label="Huvudmeny">${navlank(lank('videor/'), 'Alla videor', '#e23d36')}${navlank(lank('korta-klipp/'), 'Korta klipp', '#2f7fd6')}${navlank(lank('om/'), 'För föräldrar', '#5DB85C')}</nav>
+  ${PREN}
   <button class="menyknapp" aria-expanded="false" aria-controls="meny"><span class="ikon" aria-hidden="true"><i></i><i></i><i></i></span><b>Meny</b></button>
 </header>
 <div class="meny" id="meny" hidden>
   <nav class="wrap meny-ruta" aria-label="Teman">
     <div>
       <p class="meny-rubrik">Vad vill ni titta på?</p>
-      <ul class="meny-teman">${startteman.map((t, i) => `<li style="--i:${i}"><a href="${lank(t.sida)}" style="${farger(t)}"><span class="prick" aria-hidden="true"></span>${esc(t.namn)}<span class="antal">${t.vids.length}<span class="sr"> videor</span></span></a></li>`).join('')}</ul>
+      <ul class="meny-teman">${startteman.map((t, i) => `<li style="--i:${i}"><a href="${lank(t.sida)}" style="${farger(t)}"><span class="pic"><img src="${bild(t.vids[0])}" alt="" loading="lazy" width="480" height="270"></span><span class="namn">${esc(t.namn)}</span><span class="antal">${t.vids.length} ${t.vids.length === 1 ? 'video' : 'videor'}</span></a></li>`).join('')}</ul>
     </div>
     <div>
       ${teman.length > startteman.length ? `<p class="meny-rubrik">Fler teman</p><ul class="meny-fler">${teman.filter(t => !startteman.includes(t)).map((t, i) => `<li style="--i:${i + startteman.length}"><a href="${lank(t.sida)}">${esc(t.titel)}</a></li>`).join('')}</ul>` : ''}
       <p class="meny-rubrik">Mer</p>
-      <ul class="meny-ovrigt"><li><a href="${lank('videor/')}">Alla videor</a></li><li><a href="${lank('korta-klipp/')}">Korta klipp</a></li><li><a href="${lank('om/')}">För föräldrar</a></li><li><a href="${S.youtube}">YouTube-kanalen</a></li></ul>
+      <ul class="meny-ovrigt"><li><a href="${lank('videor/')}">Alla videor</a></li><li><a href="${lank('om/')}">För föräldrar</a></li><li><a href="${S.engelska}">På engelska</a></li></ul>
     </div>
   </nav>
 </div>
@@ -167,9 +171,14 @@ ${innehall}
 </main>
 <footer class="fot wrap">
   <div>${logo}<p>Barnsånger och sagor för barn 1–4 år.</p></div>
-  <ul><li><a href="${S.youtube}">YouTube</a></li><li><a href="${S.engelska}">På engelska: Tiny Crayon TV</a></li><li><a href="${lank('om/')}">Om Lilla Kritan</a></li></ul>
+  <ul><li><a href="${S.youtube}?sub_confirmation=1">Prenumerera på YouTube</a></li><li><a href="${S.engelska}">På engelska: Tiny Crayon TV</a></li><li><a href="${lank('om/')}">Om Lilla Kritan</a></li></ul>
   <p class="liten">© ${ar} Lilla Kritan. Sidan har ingen reklam och inga spårningscookies.</p>
 </footer>
+<dialog class="spelruta" id="spelruta" aria-labelledby="spelruta-t">
+  <div class="spelruta-topp"><h2 id="spelruta-t"></h2><form method="dialog"><button class="stang" aria-label="Stäng videon"><span class="ikon" aria-hidden="true"><i></i><i></i><i></i></span></button></form></div>
+  <div class="ruta"></div>
+  <p class="knappar"><button class="knapp nasta" type="button">Nästa video</button>${PREN.replace('knapp pren', 'knapp ghost pren')}<a class="knapp ghost om-video" href="">Om videon</a></p>
+</dialog>
 <script src="${BAS}sajt.js" defer></script>
 </body>
 </html>
@@ -196,7 +205,7 @@ sidor.push(sida({
   <div>
     <h1>Barnsånger och sagor för <span class="understruken">de minsta${streck()}</span></h1>
     <p class="ingress">Sjung med, lek tittut, gissa vad kritan ritar och somna till en godnattsaga. För barn ungefär 1–4 år.</p>
-    <p class="knappar"><a class="knapp" href="${lank(senast.sida)}">Se nya avsnittet</a><a class="knapp ghost" href="${lank('videor/')}">Alla videor</a></p>
+    <p class="knappar"><a class="knapp spela-knapp" href="${lank(senast.sida)}" ${spelData(senast)}>Spela nya avsnittet</a><a class="knapp ghost" href="${lank('videor/')}">Alla videor</a></p>
   </div>
   <div class="hjalte-video">${kort(senast, 1).replace('loading="lazy"', 'fetchpriority="high"')}</div>
 </section>
@@ -259,7 +268,7 @@ for (const v of videor) {
     <ul class="fakta"><li>${minuter(v.sekunder)}</li><li>För barn 1–4 år</li><li>${datum(v.publicerad)}</li></ul>
     ${v.text.map(p => `<p>${esc(p)}</p>`).join('')}
     ${v.teman.length ? `<p class="temalankar">${v.teman.map(t => `<a href="${lank(t.sida)}" style="${farger(t)}">${esc(t.namn)}</a>`).join('')}</p>` : ''}
-    <p><a class="knapp ghost" href="https://www.youtube.com/watch?v=${v.id}">Se på YouTube</a></p>
+    <p class="knappar">${PREN}<a class="knapp ghost" href="https://www.youtube.com/watch?v=${v.id}">Se på YouTube</a></p>
   </div>
 </article>
 ${mer.length ? `<section><h2>${tema ? `Mer från ${esc(tema.namn)}` : 'Fler videor'}</h2>${rutnat(mer, v.short ? 'shorts' : 'rutnat')}</section>` : ''}`,

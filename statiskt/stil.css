@@ -56,26 +56,31 @@ a:hover>.streck path,a:focus-visible>.streck path{stroke-dashoffset:0}
 .ikon i:nth-child(1){top:0}
 .ikon i:nth-child(2){top:5.75px}
 .ikon i:nth-child(3){bottom:0}
-[aria-expanded=true] .ikon i:nth-child(1){transform:translateY(5.75px) rotate(45deg)}
-[aria-expanded=true] .ikon i:nth-child(2){opacity:0;transform:scaleX(0)}
-[aria-expanded=true] .ikon i:nth-child(3){transform:translateY(-5.75px) rotate(-45deg)}
+:is([aria-expanded=true],.stang) .ikon i:nth-child(1){transform:translateY(5.75px) rotate(45deg)}
+:is([aria-expanded=true],.stang) .ikon i:nth-child(2){opacity:0;transform:scaleX(0)}
+:is([aria-expanded=true],.stang) .ikon i:nth-child(3){transform:translateY(-5.75px) rotate(-45deg)}
 
 /* menyn */
 .meny{position:fixed;inset:0;z-index:11;background:var(--bg) var(--grain);padding:100px 0 48px;overflow-y:auto;overscroll-behavior:contain}
 .meny:not([hidden]){animation:menyIn .3s ease}
 @keyframes menyIn{from{opacity:0}}
-.meny-ruta{display:grid;grid-template-columns:1.3fr 1fr;gap:24px 64px;align-items:start}
+.meny-ruta{display:grid;grid-template-columns:1.7fr 1fr;gap:24px 64px;align-items:start}
 .meny-rubrik{font:500 15px Fredoka,sans-serif;color:var(--dim);margin:0 0 12px;letter-spacing:.02em}
 .meny-ruta>div>.meny-rubrik:not(:first-child){margin-top:32px}
 .meny ul{list-style:none;margin:0;padding:0}
 .meny li{animation:upp .45s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 35ms + 60ms)}
 @keyframes upp{from{opacity:0;transform:translateY(10px)}}
-.meny-teman{display:grid;gap:2px}
-.meny-teman a{display:flex;align-items:center;gap:16px;text-decoration:none;font:600 clamp(26px,3.6vw,38px)/1.2 Fredoka,sans-serif;padding:8px 12px;margin-left:-12px;border-radius:16px;transition:background-color .2s}
-.meny-teman a:hover,.meny-teman a:focus-visible{background:var(--card)}
-.meny-teman .prick{flex:none;width:18px;height:18px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px #fff;transition:transform .25s}
-.meny-teman a:hover .prick,.meny-teman a:focus-visible .prick{transform:scale(1.25)}
-.meny-teman .antal{margin-left:auto;font:500 15px Fredoka,sans-serif;color:var(--dim);opacity:1}
+.meny-teman{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.meny-teman a{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:136px;padding:64px 18px 16px;border-radius:20px;border:4px solid #fff;background:var(--c);color:var(--t);text-decoration:none;overflow:hidden;isolation:isolate;box-shadow:0 10px 22px -14px rgba(70,45,20,.55);transition:transform .2s ease}
+.meny-teman a::after{content:"";position:absolute;inset:0;background:var(--grain);mix-blend-mode:multiply;z-index:-1}
+.meny-teman a:hover{transform:translateY(-3px) rotate(-.6deg)}
+.meny-teman a:active{transform:scale(.97)}
+.meny-teman a:focus-visible{outline:3px solid var(--rod);outline-offset:3px}
+.meny-teman .pic{position:absolute;right:-10px;top:-10px;width:84px;aspect-ratio:1;border-radius:50%;border:4px solid #fff;overflow:hidden;transform:rotate(8deg);transition:transform .3s ease}
+.meny-teman a:hover .pic{transform:rotate(-2deg) scale(1.06)}
+.meny-teman .pic img{width:100%;height:100%;object-fit:cover;object-position:78% 50%;transform:scale(1.5);transform-origin:70% 50%}
+.meny-teman .namn{font:600 clamp(20px,2.2vw,26px)/1.1 Fredoka,sans-serif}
+.meny-teman .antal{font:500 14px Fredoka,sans-serif;margin-top:6px}
 .meny-fler{display:flex;flex-wrap:wrap;gap:8px}
 .meny-fler a{display:inline-flex;align-items:center;min-height:40px;text-decoration:none;font:500 16px Fredoka,sans-serif;padding:0 16px;border-radius:999px;box-shadow:inset 0 0 0 2px var(--line);transition:box-shadow .2s}
 .meny-fler a:hover,.meny-fler a:focus-visible{box-shadow:inset 0 0 0 2px var(--ink)}
@@ -90,6 +95,8 @@ body.meny-oppen .nav{visibility:hidden}
 .knapp{display:inline-flex;align-items:center;min-height:48px;font:600 18px Fredoka,sans-serif;text-decoration:none;background:var(--rod);color:#fff;padding:0 26px;border-radius:999px;box-shadow:0 4px 0 var(--rod-skugga);transition:transform .15s,box-shadow .15s}
 .knapp:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--rod-skugga)}
 .knapp:active{transform:translateY(3px);box-shadow:0 1px 0 var(--rod-skugga)}
+.spela-knapp::before{content:"";border-left:12px solid currentColor;border-top:7.5px solid transparent;border-bottom:7.5px solid transparent;margin-right:12px}
+.topp .pren{min-height:44px;font-size:16px;padding:0 20px;box-shadow:0 3px 0 var(--rod-skugga)}
 .knapp.ghost{background:none;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
 .knapp.ghost:hover{box-shadow:inset 0 0 0 2px var(--ink);transform:none}
 .knapp.ghost:active{transform:translateY(1px)}
@@ -176,6 +183,25 @@ body.meny-oppen .nav{visibility:hidden}
 .om h1{margin-bottom:22px}
 .om h2{margin-top:40px}
 
+/* spelrutan: korten spelar på samma sida */
+.spelruta{width:min(960px,100% - 32px);max-width:none;max-height:calc(100% - 32px);padding:14px 16px 18px;border:0;border-radius:24px;background:var(--bg) var(--grain);color:var(--ink);box-shadow:0 30px 80px -20px rgba(0,0,0,.6)}
+.spelruta[open]{animation:upp .3s cubic-bezier(.2,.7,.2,1)}
+.spelruta::backdrop{background:rgba(31,28,25,.75)}
+body:has(.spelruta[open]){overflow:hidden}
+.spelruta-topp{display:flex;align-items:center;gap:12px;margin:0 0 12px 4px}
+.spelruta h2{font-size:clamp(20px,2.4vw,26px);margin:0 auto 0 0}
+.spelruta form{margin:0}
+.stang{all:unset;cursor:pointer;flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 2px var(--line);transition:box-shadow .2s}
+.stang:hover{box-shadow:inset 0 0 0 2px var(--ink)}
+.stang:focus-visible{outline:3px solid var(--rod);outline-offset:3px}
+.spelruta .ruta{aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#000}
+.spelruta.ar-short{width:min(440px,100% - 32px)}
+.spelruta.ar-short .ruta{aspect-ratio:9/16;width:min(100%,calc((100dvh - 230px) * 9 / 16));margin:0 auto}
+.spelruta iframe{display:block;width:100%;height:100%;border:0}
+.spelruta .knappar{margin:16px 0 0}
+.spelruta .knapp{min-height:44px;font-size:16px;padding:0 20px}
+.nasta[hidden]{display:none}
+
 /* föräldrar och sidfot */
 .foraldrar{background:var(--card);border-radius:28px;padding:40px 48px;box-shadow:inset 0 0 0 1px var(--line);max-width:860px}
 .foraldrar p{color:var(--dim);max-width:60ch}
@@ -205,7 +231,23 @@ body.meny-oppen .nav{visibility:hidden}
 @media (max-width:560px){
   .wrap{padding:0 16px}
   .teman,.rutnat{grid-template-columns:1fr}
-  .hem{height:34px}
+  .topp{gap:10px;padding-top:16px;padding-bottom:16px}
+  .hem{height:28px}
+  .topp .pren{font-size:15px;padding:0 14px}
+  .shorts{grid-template-columns:1fr 1fr}
+  .hjalte{gap:20px;padding-top:12px}
+  .hjalte>div:first-child{display:contents}
+  .hjalte .ingress{order:2;margin:0}
+  .hjalte .knappar{order:3}
+  .hjalte-video{order:1;margin:4px 6px 8px}
+  .hjalte-video .kort-t{font-size:19px}
+  .spelruta{width:100%;max-height:100%;margin:auto 0 0;border-radius:24px 24px 0 0;padding:12px 12px 20px}
+  .spelruta.ar-short{width:100%}
+  .spelruta .knapp{flex:1 1 auto;justify-content:center}
+  .meny-teman{gap:10px}
+  .meny-teman a{min-height:122px;padding:58px 14px 14px}
+  .meny-teman .pic{width:70px}
+  .meny-teman .namn{font-size:18px}
   .menyknapp b{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
   .menyknapp{width:46px;padding:0;justify-content:center}
   .meny{padding-top:84px}

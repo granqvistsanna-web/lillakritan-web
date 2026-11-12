@@ -24,13 +24,39 @@ document.querySelectorAll('.chips').forEach(chips => chips.addEventListener('cli
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('syns'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -6% 0px' });
 document.querySelectorAll('.in').forEach((el, i) => { el.style.transitionDelay = (i % 3) * 70 + 'ms'; io.observe(el); });
 
-// spelaren laddar YouTube först när man trycker
-document.querySelectorAll('.spelare').forEach(b => b.addEventListener('click', () => {
+// YouTube laddas först när man trycker (ingen cookie innan)
+const youtube = (id, titel) => {
   const f = document.createElement('iframe');
-  f.src = `https://www.youtube-nocookie.com/embed/${b.dataset.id}?autoplay=1&rel=0&playsinline=1`;
-  f.title = b.getAttribute('aria-label').replace(/^Spela /, '');
-  f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
-  f.allowFullscreen = true;
-  const ruta = document.createElement('div'); ruta.className = 'spelare'; ruta.append(f);
+  f.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`;
+  f.title = titel; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+  return f;
+};
+
+// videosidan: knappen blir spelaren
+document.querySelectorAll('button.spelare').forEach(b => b.addEventListener('click', () => {
+  const ruta = document.createElement('div'); ruta.className = 'spelare';
+  ruta.append(youtube(b.dataset.id, b.getAttribute('aria-label').replace(/^Spela /, '')));
   b.replaceWith(ruta);
 }, { once: true }));
+
+// korten: spela direkt i en ruta på samma sida, med "Nästa video"
+const dlg = document.getElementById('spelruta'), ruta = dlg.querySelector('.ruta'), nasta = dlg.querySelector('.nasta');
+let lista = [], nr = 0;
+const spela = i => {
+  const a = lista[nr = i];
+  ruta.replaceChildren(youtube(a.dataset.id, a.dataset.namn));
+  dlg.classList.toggle('ar-short', 'short' in a.dataset);
+  dlg.querySelector('h2').textContent = a.dataset.namn;
+  dlg.querySelector('.om-video').href = a.href;
+  nasta.hidden = i >= lista.length - 1;
+};
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-id]');
+  if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  lista = [...a.parentElement.querySelectorAll('a[data-id]:not([hidden])')];
+  spela(lista.indexOf(a)); dlg.showModal();
+});
+nasta.addEventListener('click', () => spela(nr + 1));
+dlg.addEventListener('close', () => ruta.replaceChildren());          // stoppar ljudet
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });  // tryck utanför stänger
