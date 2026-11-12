@@ -28,7 +28,7 @@ Så enkelt som möjligt: statisk HTML, inget ramverk, ingen databas.
 ```
 lillakritan-web/
   bygg.mjs            hämtar videor från YouTube, skriver sidorna i docs/
-  kategorier.json     kategorier + nyckelord + manuella undantag per video-id
+  sajt.json           det lilla som inte kommer från YouTube: vilka spellistor som visas på startsidan och i vilken ordning
   texter/<video-id>.md   sångtext/sagotext per video (fas 2, valfritt)
   mallar/             sidmallar (template literals i bygg.mjs räcker i början)
   stil.css
@@ -40,7 +40,9 @@ lillakritan-web/
 - **Node 22, inga beroenden.** `fetch` och template literals räcker.
 - **Data:** YouTube Data API v3. `channels?forHandle=@…` → uppladdningsspellistan → `playlistItems` (alla videor) → `videos` (längd, beskrivning, miniatyrer). Kvoten är gott och väl tillräcklig (ca 5 anrop per körning).
 - **Varför inte RSS:** kanalens RSS ger bara de 15 senaste videorna.
-- **Kategorier:** i första hand nyckelord i titeln (`borsta` → Borsta tänderna), i andra hand en manuell lista i `kategorier.json`. Videor som inte passar någonstans hamnar under "Nya avsnitt" och listas i byggloggen så att de kan sorteras in.
+- **Teman = YouTube-spellistorna.** Inga teman eller avsnitt skrivs in i koden. Bygget läser kanalens spellistor (titel, beskrivning, videor) och gör en temasida av varje. Byter Sanna namn på en spellista, lägger till en ny eller tar bort en i YouTube Studio, så följer sajten med nästa natt. Spellistans beskrivning blir temasidans föräldratext, så SEO-texten skrivs på ett ställe.
+- **Sajt.json** pekar bara ut vilka spellistor som får ett stort kort på startsidan (och ordningen). Saknas den visas de största spellistorna.
+- **Färg per tema** delas ut ur en fast kritpalett i tur och ordning, så ett nytt tema får en färg av sig självt.
 - **Shorts** (Gissa teckningen m.fl.) skiljs ut på längd (≤ 60 s) och visas i en egen rad, inte bland avsnitten.
 
 ## 4. Automatisk uppdatering
@@ -57,14 +59,9 @@ En ny video syns alltså på sajten inom ett dygn, eller direkt om man trycker p
 
 ```
 /                          Startsida
-/borsta-tanderna/          Kategorisidor (en per behov/tema)
-/laggdags/
-/farger/
-/fordon/
-/djur/
-/sagor/                    bilderboksavsnitten, utan sång
-/sanger/                   alla sånger
-/gissa-teckningen/         shorts
+/tema/<spellistans-slug>/  en sida per spellista (byggs av sig själv)
+/videor/                   alla videor, nyast först, med filterknappar per tema
+/shorts/                   alla shorts
 /video/<slug>/             en sida per video
 /om/                       om lilla kritan, för vem, hur det görs
 /sitemap.xml, /robots.txt
@@ -73,17 +70,15 @@ En ny video syns alltså på sajten inom ett dygn, eller direkt om man trycker p
 ### Startsida – "Vad behöver ni just nu?"
 
 1. **Hero:** logga, en mening om vad lilla kritan är ("Sånger och sagor ritade med krita, för barn 1–4 år"), knapp till senaste avsnittet.
-2. **Sex stora kort** som urklipp med vit kant, en figur och väggfärg per kort:
-   Borsta tänderna · Läggdags · Lära färger · Fordon · Djur & bondgården · Sagor utan sång
-3. **Senaste avsnitten** (6 st, från YouTube).
-4. **Gissa teckningen** – rad med shorts.
+2. **"Vad behöver ni just nu?"** – stora kort, ett per utvald spellista (sajt.json), med spellistans första miniatyr och en färg ur paletten.
+3. **Alla videor** – nyast först, med filterknappar (en per tema) och "Nytt!" på videor yngre än 14 dagar.
+4. **Shorts** – en rad.
 5. **För föräldrar:** kort text om tempo, upprepning, inget läskigt, inga ljudeffekter som skrämmer → länk till /om.
 6. Sidfot: YouTube-kanalen, engelska kanalen tiny crayon tv, kontakt.
 
 ### Kategorisida
 
-- Rubrik som matchar sökningen ("Borsta tänderna-sånger för barn").
-- 2–4 meningar för föräldern: när den passar, hur lång, vad barnet gör ("sjung med, räkna tänderna").
+- Rubrik = spellistans titel, text = spellistans beskrivning (skriv dem så som föräldrar söker, t.ex. "Borsta tänderna-sånger för barn").
 - Rutnät med videokort (miniatyr, titel, längd).
 - Länk till 2–3 närliggande kategorier.
 
@@ -98,7 +93,7 @@ En ny video syns alltså på sajten inom ett dygn, eller direkt om man trycker p
 ## 6. SEO
 
 - `lang="sv"`, unik `<title>` och `<meta name="description">` per sida, en `<h1>`.
-- Rena adresser utan å/ä/ö (`/borsta-tanderna/`), kanonisk URL på varje sida.
+- Rena adresser utan å/ä/ö, gjorda ur titlarna (`/tema/borsta-tanderna/`), kanonisk URL på varje sida.
 - **`VideoObject`** (JSON-LD) på videosidor: namn, beskrivning, miniatyr, uppladdningsdatum, längd, `embedUrl`. Det ger videoresultat i Google.
 - `Organization`/`WebSite` på startsidan med länk till kanalerna (`sameAs`).
 - Open Graph-bild = videons miniatyr (färgstrimman-miniatyrerna).
@@ -123,7 +118,9 @@ En ny video syns alltså på sajten inom ett dygn, eller direkt om man trycker p
 | Kategorifärger | väggfärgerna från scenerna: grön `#5DB85C`, teal `#2E8B7A`, och färgsångernas färger |
 | Kort | urklipp med vit klistermärkeskant (samma regel som `vita-kanter`), lite snett |
 | Figurer | riktiga v2-figurer från riggarna, exporterade som PNG/WebP |
+| Logotyp | nya ordmärket ur introna: "LILLA KRITAN" i handtextade versaler, röd krita `#EC7252`, vit kant, utropsstreck (`VERS` i `avsnitt/*/intro/index.html`) |
 | Rörelse | lugn: kort lyfter mjukt vid hover, inget studs. `prefers-reduced-motion` respekteras |
+| Effekter (OSMO-urval, utan bibliotek) | kritlinje som ritas under länkar vid hover · logon "kokar" i 4 bilder/s som filmerna · mjuk reveal vid scroll · filterknappar · "Nytt!" som försvinner efter 14 dagar. Valt bort: magnetiska knappar, egna muspekare, smooth scroll, marquees, laddare, studsiga knappar (hektiskt, långsamt, eller hjälper inte en förälder med ett barn i knät) |
 | Mörkt läge | nej i början, sajten är "papper" |
 
 Logga, profilbild och banner finns redan i `Lilla-kritan/produktion/youtube/kanal/`.
@@ -148,6 +145,6 @@ Logga, profilbild och banner finns redan i `Lilla-kritan/produktion/youtube/kana
 
 ## 10. Öppna frågor
 
-- **Svenska kanalens handtag/kanal-id** – behövs för bygget. (`UCCAv9…` är tiny crayon tv.)
-- Finns det spellistor i kanalen som redan motsvarar kategorierna? Då kan bygget läsa dem i stället för nyckelord.
+- Svenska kanalen: `@lillakritan` (`UCCAv9…` är tiny crayon tv).
+- Spellistorna i kanalen blir sajtens teman: se över titlar och beskrivningar (skriv som föräldrar söker) innan sajten går live.
 - Ska lilla Kvack-videorna med som egen kategori?
